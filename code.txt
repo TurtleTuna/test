@@ -232,7 +232,7 @@ function updateRT(name){
       isGuilty=false;
     }
   }
-
+  if(isGuilty){
     Logger.log('Adding to name')
     sheet.appendRow([rowContent[0],rowContent[1],rowContent[2],rowContent[3],rowContent[4],'']);
   }
