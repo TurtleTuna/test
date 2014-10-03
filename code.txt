@@ -1,0 +1,329 @@
+﻿var namesIDs        = SpreadsheetApp.openByUrl("https://docs.google.com/spreadsheets/d/1miWarI_bXLzakFmJ4KxmEMZ93Thcjr91dpShzAA7ngQ/edit?usp=sharing").getSheetByName("1");
+var globalIdRange   = {row:0,column:0};
+var globalID        = namesIDs.getRange("ProtocolsAmount");
+ 
+var worksIDs        = SpreadsheetApp.openById('1oT23P53C3es8zNMRmz-zK3P07fJRiFkDrA5eAJ_T2k4').getActiveSheet().getDataRange().getValues();
+var form            = FormApp.openById("1Y5BFt4pZphbuHdU0dBO_icUsM-e132oG3EVy24we9ws");
+var formResponses   = form.getResponses();
+var formResponse    = formResponses[formResponses.length-1];
+var itemResponses   = formResponse.getItemResponses();
+var lastPunished    = itemResponses[1].getResponse();
+var lastProsecutor  = itemResponses[0].getResponse();
+var lastSuitDate    = itemResponses[2].getResponse();
+var lastSummary     = itemResponses[3].getResponse();
+var lastTutors      = itemResponses[4].getResponse();
+var lastTeam        = itemResponses[5].getResponse();
+var lastProtocol    = itemResponses[6].getResponse();
+var lastSentence    = itemResponses[7].getResponse();
+var lastJSummary    = itemResponses[8].getResponse();
+var lastComments    = itemResponses[9].getResponse();
+var moreGuilty      = itemResponses[11].getResponse();
+var workName        = itemResponses[12].getResponse();
+var lessGuilty;
+var savedRikuzim;
+var savedRikuzimNum;
+var rikuzID;
+var fullDate = new Date()
+var year = fullDate.getYear();
+var month = fullDate.getMonth() + 1;
+var day = fullDate.getDate();
+var date = year+'-'+month+'-'+day;
+var rikuz = null;
+var recipients = 'VMProtocols@gmail.com';
+var protocolID;
+var protocolName;
+var test1 = '';
+var lessSued;
+ 
+ 
+function main(){
+  //Wait for surely update
+  Utilities.sleep(5000);
+  //Update the variables
+  formResponses   = form.getResponses();
+  formResponse    = formResponses[formResponses.length-1];
+  itemResponses   = formResponse.getItemResponses();
+  lastPunished    = itemResponses[1].getResponse();
+  lastProsecutor  = itemResponses[0].getResponse();
+  lastSuitDate    = itemResponses[2].getResponse();
+  lastSummary     = itemResponses[3].getResponse();
+  lastTutors      = itemResponses[4].getResponse();
+  lastTeam        = itemResponses[5].getResponse();
+  lastProtocol    = itemResponses[6].getResponse();
+  lastSentence    = itemResponses[7].getResponse();
+  lastJSummary    = itemResponses[8].getResponse();
+  lastComments    = itemResponses[9].getResponse();
+  moreGuilty      = itemResponses[11].getResponse();
+  lessGuilty      = itemResponses[10].getResponse();
+  savedRikuzim    = namesIDs.getDataRange().getValues();
+  savedRikuzimNum = savedRikuzim.length;
+  onResponse();
+ 
+}
+ 
+ 
+ 
+//The main fucntion. Starts when the form submited
+function onResponse(){
+  Logger.log(lastTutors);
+  globalID.setValue(globalID.getValue()+1);
+  lessSued = lessGuilty.split(',');
+  var suedPeople = lastPunished.split(',');
+  cleanse(suedPeople);
+ 
+  for(var j = 0; j<suedPeople.length; j++){
+    rikuzID = null;
+    Logger.log(suedPeople);
+    for(var i=0;i<savedRikuzimNum; i++){
+      if(savedRikuzim[i][0]==suedPeople[j]){
+        rikuzID=savedRikuzim[i][1];
+        updateRT(suedPeople[j]);
+      }
+    }
+   
+    if(rikuzID==null){
+      createNewRT(suedPeople[j]);
+    }
+  }
+ 
+  if(moreGuilty!=''){
+    var moreSued = moreGuilty.split(',');
+    cleanse(moreSued);
+   
+    for(var j = 0; j<moreSued.length; j++){
+      rikuzID = null;
+      Logger.log(moreSued);
+      for(var i=0;i<savedRikuzimNum; i++){
+        if(savedRikuzim[i][0]==moreSued[j]){
+          rikuzID=savedRikuzim[i][1];
+          updateRT(moreSued[j]);
+        }
+      }
+     
+      if(rikuzID==null){
+        createNewRT(moreSued[j]);
+      }
+    }
+  }
+ 
+  getRecipients();
+  createProtocol();
+  sendEmails();
+  moveProtocolToTheRightLocation();
+}
+ 
+function moveProtocolToTheRightLocation(){
+  var folder = DocsList.getFolderById('0B8aZ0uhZnIwIVVpQVTRUSnJkOHM');
+  var file =  DocsList.getFileById(protocolID);
+  file.addToFolder(folder);
+  file.removeFromFolder(DocsList.getRootFolder());
+}
+ 
+//Sending the Emails to the Tutors with the work if there is
+function sendEmails(){
+  file = DriveApp.getFileById(protocolID);
+  MailApp.sendEmail(recipients, protocolName, lastComments, {name: 'וועדת משמעת', attachments: findWorkFile(file)});
+}
+ 
+//Find the work by the name.
+function findWorkFile(file){
+  var files = [file];
+  var lastFile = 0;
+  for(var i = 0; i<worksIDs; i++){
+    if(workName==works[i][0]){
+      lastFile = DocsList.getFileById(works[i][1]);
+      files.push(lastFile);
+    }
+  }
+}
+ 
+ 
+ 
+//Cleanse the suedPeople var
+function cleanse(suedPeople){
+  for(var i = 0; i<suedPeople.length; i++)
+    suedPeople[i] = suedPeople[i].split(' ');
+ 
+  for(i in suedPeople)
+  {
+    var name = '';
+    for(j in suedPeople[i])
+    {
+      if(suedPeople[i][j] != '')
+        name += suedPeople[i][j] + (j!=(suedPeople[i].length-1) ? ' ' : '');
+    }
+    suedPeople[i] = name;
+  }
+}
+ 
+ 
+//Cleanse the lessSued var
+function moreSuedCleaner(lessSued){
+  for(var i = 0; i<lessSued.length; i++)
+    lessSued[i] = lessSued[i].split(' ');
+ 
+  for(i in lessSued){
+    var name = '';
+    for(j in lessSued[i]) {
+      if(lessSued[i][j] != '')
+        name += lessSued[i][j] + (j!=(lessSued[i].length-1) ? ' ' : '');
+    }
+    lessSued[i] = name;
+  }
+}
+ 
+ 
+ 
+ 
+ 
+//Gets the recipients list and put it in one variable.
+function getRecipients(){
+  var contactList = SpreadsheetApp.openById('1DdFcK5vK_65Aq8N1Bqc0m9BG5Rwz-a475JQK2Edmvms').getActiveSheet().getDataRange().getValues();
+  for(var i = 0; i<lastTutors.length; i++){
+    for(var j = 0; j<contactList.length; j++){
+      //Logger.log(contactList.length);//+lastTutors.length);
+      if(lastTutors[i] == contactList[j][0]){
+        Logger.log('found'+lastTutors[i]);
+        recipients = recipients + ',' + contactList[j][1];
+      }
+    }
+  }
+}
+ 
+ 
+//Creates RT if no previous RT exists.
+function createNewRT(name){
+  //var newSheet = SpreadsheetApp.create(name, 1,6);
+  Logger.log(name);
+  var newSheet = SpreadsheetApp.create(name, 1,6);
+  rikuzID = newSheet.getId();
+  namesIDs.appendRow([name , rikuzID]);
+  newSheet.getActiveRange().setHorizontalAlignment("right");
+ 
+  newSheet.appendRow(['שם הנענש:',name]);
+  newSheet.appendRow(['שם החונך:','']);
+  newSheet.appendRow(['מספר תלונה','תאריך הדיון','תקציר האירוע','העונש','מספר סידורי','בוצע']);
+  updateRT(name);
+  folder = DocsList.getFolderById('0B8aZ0uhZnIwIT1RCRUc2NUhnSW8');
+  DocsList.getFileById(rikuzID).addToFolder(folder);
+  DocsList.getFileById(rikuzID).removeFromFolder(DocsList.getRootFolder());
+}
+ 
+//Updates the RT if there is one
+function updateRT(name){
+  var ss =  SpreadsheetApp.openById(rikuzID);
+  var sheet = SpreadsheetApp.openById(rikuzID).getActiveSheet();
+  var rowContent = {};
+  rowContent[0] = sheet.getDataRange().getValues().length-2;
+  rowContent[1] = date;
+  rowContent[2] = lastJSummary;
+  rowContent[3] = lastSentence;
+  rowContent[4] = '#'+year+''+month+namesIDs.getRange("ProtocolsAmount").getValue();
+ 
+  //Checks if the kid is guilty.
+  var isGuilty = true;
+  moreSuedCleaner(lessSued);
+  Logger.log('lessSued = '+ lessSued);
+  for(var j = 0; j<lessSued.length; j++){
+    if(lessSued[j]==name){
+      isGuilty=false;
+    }
+  }
+  if(isGuilty){
+    Logger.log('Adding to name')
+    sheet.appendRow([rowContent[0],rowContent[1],rowContent[2],rowContent[3],rowContent[4],'']);
+  }
+  isGuilty=true; //Maybe unnecessary
+  //send4thTime(name,ss);
+}
+ 
+function send4thTime(name1, ss){
+  var cases = sheet.getDataRange().getValues().length-3;
+  if(cases%4==0){
+    if(sheet.getDataRange().getValues()[1][1]!=''){
+      MailApp.sendEmail(getRecipientsFor4thTime(sheet.getDataRange().getValues()[0][1]), 'ריכוז תלונות של '+name1,name1+' הגיע ל4 תלונות נוספות, אנא ידע/י את הוריו או הוריה על כל המקרים עד כה.',  {name: 'וועדת משמעת' , attachments: [ss]});
+    }
+  }
+}
+ 
+ 
+//returning the email address for the given name
+function getRecipientsFor4thTime(name){
+  var contactList = SpreadsheetApp.openById('1DdFcK5vK_65Aq8N1Bqc0m9BG5Rwz-a475JQK2Edmvms').getActiveSheet().getDataRange().getValues();
+  for(var j = 0; j<contactList.length; j++){
+    if(name == contactList[j][0]){
+      return contactList[j][1];
+    }
+  }
+}
+ 
+ 
+//Creating the Protocol of this suit.
+function createProtocol(){
+  var protocol = DocumentApp.create(lastProsecutor + ' נגד ' + lastPunished);
+  protocolID = protocol.getId();
+  protocolName = protocol.getName();
+  var body = protocol.getBody();
+  var tutorsLength=0;
+  var margins = 23;
+  for(i = 0; i<lastTutors.length; i++){
+    tutorsLength += lastTutors[i].length;
+  }
+ 
+  var titleStyle = {};
+  var infoStyle = {};
+  var dateStyle = {};
+  var headerStyle = {};
+  titleStyle[DocumentApp.Attribute.FONT_FAMILY] =  DocumentApp.FontFamily.ARIAL;
+  titleStyle[DocumentApp.Attribute.FONT_SIZE] = 12;
+  titleStyle[DocumentApp.Attribute.BOLD] = true;
+  titleStyle[DocumentApp.Attribute.FOREGROUND_COLOR] = '#000000';
+  titleStyle[DocumentApp.Attribute.UNDERLINE] = true;
+  titleStyle[DocumentApp.Attribute.SPACING_AFTER] = 3;
+ 
+  dateStyle[DocumentApp.Attribute.FONT_FAMILY] =  DocumentApp.FontFamily.ARIAL;
+  dateStyle[DocumentApp.Attribute.FONT_SIZE] = 12;
+  dateStyle[DocumentApp.Attribute.BOLD] = true;
+  dateStyle[DocumentApp.Attribute.FOREGROUND_COLOR] = '#FF0000';
+  dateStyle[DocumentApp.Attribute.UNDERLINE] = true;
+  dateStyle[DocumentApp.Attribute.SPACING_AFTER] = 20;
+ 
+  infoStyle[DocumentApp.Attribute.FONT_FAMILY] =  DocumentApp.FontFamily.ARIAL;
+  infoStyle[DocumentApp.Attribute.FONT_SIZE] = 12;
+  infoStyle[DocumentApp.Attribute.BOLD] = false;
+  infoStyle[DocumentApp.Attribute.FOREGROUND_COLOR] = '#000000';
+  infoStyle[DocumentApp.Attribute.UNDERLINE] = false;
+  infoStyle[DocumentApp.Attribute.SPACING_AFTER] = 20;
+ 
+  headerStyle[DocumentApp.Attribute.FONT_FAMILY] =  DocumentApp.FontFamily.ARIAL;
+  headerStyle[DocumentApp.Attribute.FONT_SIZE] = 16;
+  headerStyle[DocumentApp.Attribute.BOLD] = true;
+  headerStyle[DocumentApp.Attribute.FOREGROUND_COLOR] = '#000000';
+  headerStyle[DocumentApp.Attribute.UNDERLINE] = true;
+  headerStyle[DocumentApp.Attribute.SPACING_AFTER] = 30;
+  headerStyle[DocumentApp.Attribute.HORIZONTAL_ALIGNMENT] = DocumentApp.HorizontalAlignment.CENTER;
+ 
+ 
+  body.setMarginBottom(margins).setMarginLeft(margins).setMarginRight(margins).setMarginTop(margins-15);
+  body.insertParagraph(0, '#'+year+''+month+namesIDs.getRange("ProtocolsAmount").getValue());
+  body.appendParagraph(lastProsecutor + ' נגד ' + lastPunished + ' - וועדת משמעת - פרוטוקול דיון').setLeftToRight(false).setAttributes(headerStyle);
+  body.appendParagraph('תאריך הדיון: ' + date).setAttributes(dateStyle).setLeftToRight(false);
+  body.appendParagraph('שם התובע: ').setAttributes(titleStyle).setLeftToRight(false);
+  body.appendParagraph(lastProsecutor).setAttributes(infoStyle).setLeftToRight(false);
+  body.appendParagraph('שם הנתבע: ').setAttributes(titleStyle).setLeftToRight(false);
+  body.appendParagraph(lastPunished).setAttributes(infoStyle).setLeftToRight(false);
+  body.appendParagraph('שמות חברי הצוות: ').setAttributes(titleStyle).setLeftToRight(false);
+  body.appendParagraph(lastTeam).setAttributes(infoStyle).setLeftToRight(false);
+  body.appendParagraph('חונכים מעורבים: ').setAttributes(titleStyle).setLeftToRight(false);
+  body.appendParagraph(lastTutors).setAttributes(infoStyle).setLeftToRight(false);
+  body.appendParagraph('תאריך התלונה: ' + lastSuitDate).setAttributes(dateStyle).setLeftToRight(false);
+  body.appendParagraph('תיאור המקרה על-ידי המתלונן: ').setAttributes(titleStyle).setLeftToRight(false);
+  body.appendParagraph(lastSummary).setAttributes(infoStyle).setLeftToRight(false);
+  body.appendParagraph('פרוטוקול הוועדה: ').setAttributes(titleStyle).setLeftToRight(false);
+  body.appendParagraph(lastProtocol).setAttributes(infoStyle).setLeftToRight(false);
+  body.appendParagraph('החלטת הוועדה: ').setAttributes(titleStyle).setLeftToRight(false);
+  body.appendParagraph(lastSentence).setAttributes(infoStyle).setLeftToRight(false);
+  body.appendParagraph('הערות: ').setAttributes(titleStyle).setLeftToRight(false);
+  body.appendParagraph(lastComments).setAttributes(infoStyle).setLeftToRight(false);
+  protocol.saveAndClose();
+}
