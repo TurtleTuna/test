@@ -1,7 +1,7 @@
 ﻿var namesIDs        = SpreadsheetApp.openByUrl("https://docs.google.com/spreadsheets/d/1miWarI_bXLzakFmJ4KxmEMZ93Thcjr91dpShzAA7ngQ/edit?usp=sharing").getSheetByName("1");
 var globalIdRange   = {row:0,column:0};
 var globalID        = namesIDs.getRange("ProtocolsAmount");
- 
+
 var worksIDs        = SpreadsheetApp.openById('1oT23P53C3es8zNMRmz-zK3P07fJRiFkDrA5eAJ_T2k4').getActiveSheet().getDataRange().getValues();
 var form            = FormApp.openById("1Y5BFt4pZphbuHdU0dBO_icUsM-e132oG3EVy24we9ws");
 var formResponses   = form.getResponses();
@@ -34,14 +34,10 @@ var protocolID;
 var protocolName;
 var test1 = '';
 var lessSued;
-<<<<<<< HEAD
 
-=======
- 
- 
->>>>>>> origin/master
+
 function main(){
-  //Wait for surely update
+  //Wait for surely update 
   Utilities.sleep(5000);
   //Update the variables
   formResponses   = form.getResponses();
@@ -59,14 +55,15 @@ function main(){
   lastComments    = itemResponses[9].getResponse();
   moreGuilty      = itemResponses[11].getResponse();
   lessGuilty      = itemResponses[10].getResponse();
+  workName        = itemResponses[12].getResponse();
   savedRikuzim    = namesIDs.getDataRange().getValues();
   savedRikuzimNum = savedRikuzim.length;
   onResponse();
- 
+  
 }
- 
- 
- 
+
+
+
 //The main fucntion. Starts when the form submited
 function onResponse(){
   Logger.log(lastTutors);
@@ -74,7 +71,7 @@ function onResponse(){
   lessSued = lessGuilty.split(',');
   var suedPeople = lastPunished.split(',');
   cleanse(suedPeople);
- 
+  
   for(var j = 0; j<suedPeople.length; j++){
     rikuzID = null;
     Logger.log(suedPeople);
@@ -84,16 +81,16 @@ function onResponse(){
         updateRT(suedPeople[j]);
       }
     }
-   
+    
     if(rikuzID==null){
       createNewRT(suedPeople[j]);
     }
   }
- 
+  
   if(moreGuilty!=''){
     var moreSued = moreGuilty.split(',');
     cleanse(moreSued);
-   
+    
     for(var j = 0; j<moreSued.length; j++){
       rikuzID = null;
       Logger.log(moreSued);
@@ -103,32 +100,32 @@ function onResponse(){
           updateRT(moreSued[j]);
         }
       }
-     
+      
       if(rikuzID==null){
         createNewRT(moreSued[j]);
       }
     }
   }
- 
+
   getRecipients();
   createProtocol();
   sendEmails();
   moveProtocolToTheRightLocation();
 }
- 
+
 function moveProtocolToTheRightLocation(){
   var folder = DocsList.getFolderById('0B8aZ0uhZnIwIVVpQVTRUSnJkOHM');
   var file =  DocsList.getFileById(protocolID);
   file.addToFolder(folder);
   file.removeFromFolder(DocsList.getRootFolder());
 }
- 
+
 //Sending the Emails to the Tutors with the work if there is
 function sendEmails(){
   file = DriveApp.getFileById(protocolID);
   MailApp.sendEmail(recipients, protocolName, lastComments, {name: 'וועדת משמעת', attachments: findWorkFile(file)});
 }
- 
+
 //Find the work by the name.
 function findWorkFile(file){
   var files = [file];
@@ -140,14 +137,14 @@ function findWorkFile(file){
     }
   }
 }
- 
- 
- 
+
+
+
 //Cleanse the suedPeople var
 function cleanse(suedPeople){
   for(var i = 0; i<suedPeople.length; i++)
     suedPeople[i] = suedPeople[i].split(' ');
- 
+  
   for(i in suedPeople)
   {
     var name = '';
@@ -159,13 +156,13 @@ function cleanse(suedPeople){
     suedPeople[i] = name;
   }
 }
- 
- 
+
+
 //Cleanse the lessSued var
 function moreSuedCleaner(lessSued){
   for(var i = 0; i<lessSued.length; i++)
     lessSued[i] = lessSued[i].split(' ');
- 
+  
   for(i in lessSued){
     var name = '';
     for(j in lessSued[i]) {
@@ -175,11 +172,11 @@ function moreSuedCleaner(lessSued){
     lessSued[i] = name;
   }
 }
- 
- 
- 
- 
- 
+
+
+
+
+
 //Gets the recipients list and put it in one variable.
 function getRecipients(){
   var contactList = SpreadsheetApp.openById('1DdFcK5vK_65Aq8N1Bqc0m9BG5Rwz-a475JQK2Edmvms').getActiveSheet().getDataRange().getValues();
@@ -193,8 +190,8 @@ function getRecipients(){
     }
   }
 }
- 
- 
+
+
 //Creates RT if no previous RT exists.
 function createNewRT(name){
   //var newSheet = SpreadsheetApp.create(name, 1,6);
@@ -203,7 +200,7 @@ function createNewRT(name){
   rikuzID = newSheet.getId();
   namesIDs.appendRow([name , rikuzID]);
   newSheet.getActiveRange().setHorizontalAlignment("right");
- 
+
   newSheet.appendRow(['שם הנענש:',name]);
   newSheet.appendRow(['שם החונך:','']);
   newSheet.appendRow(['מספר תלונה','תאריך הדיון','תקציר האירוע','העונש','מספר סידורי','בוצע']);
@@ -212,7 +209,7 @@ function createNewRT(name){
   DocsList.getFileById(rikuzID).addToFolder(folder);
   DocsList.getFileById(rikuzID).removeFromFolder(DocsList.getRootFolder());
 }
- 
+
 //Updates the RT if there is one
 function updateRT(name){
   var ss =  SpreadsheetApp.openById(rikuzID);
@@ -240,17 +237,17 @@ function updateRT(name){
   isGuilty=true; //Maybe unnecessary
   //send4thTime(name,ss);
 }
- 
+
 function send4thTime(name1, ss){
   var cases = sheet.getDataRange().getValues().length-3;
   if(cases%4==0){
     if(sheet.getDataRange().getValues()[1][1]!=''){
       MailApp.sendEmail(getRecipientsFor4thTime(sheet.getDataRange().getValues()[0][1]), 'ריכוז תלונות של '+name1,name1+' הגיע ל4 תלונות נוספות, אנא ידע/י את הוריו או הוריה על כל המקרים עד כה.',  {name: 'וועדת משמעת' , attachments: [ss]});
     }
-  }
+  } 
 }
- 
- 
+
+
 //returning the email address for the given name
 function getRecipientsFor4thTime(name){
   var contactList = SpreadsheetApp.openById('1DdFcK5vK_65Aq8N1Bqc0m9BG5Rwz-a475JQK2Edmvms').getActiveSheet().getDataRange().getValues();
@@ -260,8 +257,8 @@ function getRecipientsFor4thTime(name){
     }
   }
 }
- 
- 
+
+
 //Creating the Protocol of this suit.
 function createProtocol(){
   var protocol = DocumentApp.create(lastProsecutor + ' נגד ' + lastPunished);
@@ -273,7 +270,7 @@ function createProtocol(){
   for(i = 0; i<lastTutors.length; i++){
     tutorsLength += lastTutors[i].length;
   }
- 
+  
   var titleStyle = {};
   var infoStyle = {};
   var dateStyle = {};
@@ -284,21 +281,21 @@ function createProtocol(){
   titleStyle[DocumentApp.Attribute.FOREGROUND_COLOR] = '#000000';
   titleStyle[DocumentApp.Attribute.UNDERLINE] = true;
   titleStyle[DocumentApp.Attribute.SPACING_AFTER] = 3;
- 
+  
   dateStyle[DocumentApp.Attribute.FONT_FAMILY] =  DocumentApp.FontFamily.ARIAL;
   dateStyle[DocumentApp.Attribute.FONT_SIZE] = 12;
   dateStyle[DocumentApp.Attribute.BOLD] = true;
   dateStyle[DocumentApp.Attribute.FOREGROUND_COLOR] = '#FF0000';
   dateStyle[DocumentApp.Attribute.UNDERLINE] = true;
   dateStyle[DocumentApp.Attribute.SPACING_AFTER] = 20;
- 
+  
   infoStyle[DocumentApp.Attribute.FONT_FAMILY] =  DocumentApp.FontFamily.ARIAL;
   infoStyle[DocumentApp.Attribute.FONT_SIZE] = 12;
   infoStyle[DocumentApp.Attribute.BOLD] = false;
   infoStyle[DocumentApp.Attribute.FOREGROUND_COLOR] = '#000000';
   infoStyle[DocumentApp.Attribute.UNDERLINE] = false;
   infoStyle[DocumentApp.Attribute.SPACING_AFTER] = 20;
- 
+  
   headerStyle[DocumentApp.Attribute.FONT_FAMILY] =  DocumentApp.FontFamily.ARIAL;
   headerStyle[DocumentApp.Attribute.FONT_SIZE] = 16;
   headerStyle[DocumentApp.Attribute.BOLD] = true;
@@ -306,8 +303,8 @@ function createProtocol(){
   headerStyle[DocumentApp.Attribute.UNDERLINE] = true;
   headerStyle[DocumentApp.Attribute.SPACING_AFTER] = 30;
   headerStyle[DocumentApp.Attribute.HORIZONTAL_ALIGNMENT] = DocumentApp.HorizontalAlignment.CENTER;
- 
- 
+  
+  
   body.setMarginBottom(margins).setMarginLeft(margins).setMarginRight(margins).setMarginTop(margins-15);
   body.insertParagraph(0, '#'+year+''+month+namesIDs.getRange("ProtocolsAmount").getValue());
   body.appendParagraph(lastProsecutor + ' נגד ' + lastPunished + ' - וועדת משמעת - פרוטוקול דיון').setLeftToRight(false).setAttributes(headerStyle);
