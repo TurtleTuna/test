@@ -130,10 +130,11 @@ function sendEmails(){
 function findWorkFile(file){
   var files = [file];
   var lastFile = 0;
-  for(var i = 0; i<worksIDs; i++){
+  for(var i = 0; i<worksIDs.length; i++){
     if(workName==works[i][0]){
       lastFile = DocsList.getFileById(works[i][1]);
       files.push(lastFile);
+      Logger.log("Found work: " + works[i][0]+"  :  "+works[i][1]);
     }
   }
   return files;
@@ -231,7 +232,7 @@ function updateRT(name){
       isGuilty=false;
     }
   }
-  if(isGuilty){
+
     Logger.log('Adding to name')
     sheet.appendRow([rowContent[0],rowContent[1],rowContent[2],rowContent[3],rowContent[4],'']);
   }
