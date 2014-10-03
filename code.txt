@@ -38,7 +38,7 @@ var lessSued;
 
 function main(){
   //Wait for surely update 
-  Utilities.sleep(5000);
+ // Utilities.sleep(5000);
   //Update the variables
   formResponses   = form.getResponses();
   formResponse    = formResponses[formResponses.length-1];
@@ -106,7 +106,7 @@ function onResponse(){
       }
     }
   }
-
+  
   getRecipients();
   createProtocol();
   sendEmails();
@@ -129,12 +129,12 @@ function sendEmails(){
 //Find the work by the name.
 function findWorkFile(file){
   var files = [file];
-  var lastFile = 0;
+  var lastFile;
   for(var i = 0; i<worksIDs.length; i++){
-    if(workName==works[i][0]){
-      lastFile = DocsList.getFileById(works[i][1]);
+    if(workName==worksIDs[i][0]){
+      lastFile = DocsList.getFileById(worksIDs[i][1]);
       files.push(lastFile);
-      Logger.log("Found work: " + works[i][0]+"  :  "+works[i][1]);
+      Logger.log("Found work: " + worksIDs[i][0]+"  :  "+worksIDs[i][1]);
     }
   }
   return files;
@@ -202,7 +202,7 @@ function createNewRT(name){
   rikuzID = newSheet.getId();
   namesIDs.appendRow([name , rikuzID]);
   newSheet.getActiveRange().setHorizontalAlignment("right");
-
+  
   newSheet.appendRow(['שם הנענש:',name]);
   newSheet.appendRow(['שם החונך:','']);
   newSheet.appendRow(['מספר תלונה','תאריך הדיון','תקציר האירוע','העונש','מספר סידורי','בוצע']);
@@ -222,7 +222,7 @@ function updateRT(name){
   rowContent[2] = lastJSummary;
   rowContent[3] = lastSentence;
   rowContent[4] = '#'+year+''+month+namesIDs.getRange("ProtocolsAmount").getValue();
- 
+  
   //Checks if the kid is guilty.
   var isGuilty = true;
   moreSuedCleaner(lessSued);
