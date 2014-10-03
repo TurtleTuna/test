@@ -136,6 +136,7 @@ function findWorkFile(file){
       files.push(lastFile);
     }
   }
+  return files;
 }
 
 
