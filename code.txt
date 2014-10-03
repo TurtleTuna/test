@@ -59,7 +59,7 @@ function main(){
   savedRikuzim    = namesIDs.getDataRange().getValues();
   savedRikuzimNum = savedRikuzim.length;
   onResponse();
-  
+  globalID.setValue(globalID.getValue()+1);
 }
 
 
@@ -67,7 +67,7 @@ function main(){
 //The main fucntion. Starts when the form submited
 function onResponse(){
   Logger.log(lastTutors);
-  globalID.setValue(globalID.getValue()+1);
+ 
   lessSued = lessGuilty.split(',');
   var suedPeople = lastPunished.split(',');
   cleanse(suedPeople);
