@@ -35,7 +35,6 @@ var protocolName;
 var test1 = '';
 var lessSued;
 
-
 function main(){
   //Wait for surely update 
   Utilities.sleep(5000);
