@@ -38,7 +38,7 @@ var lessSued;
 
 function main(){
   //Wait for surely update 
- // Utilities.sleep(5000);
+  Utilities.sleep(7500);
   //Update the variables
   formResponses   = form.getResponses();
   formResponse    = formResponses[formResponses.length-1];
